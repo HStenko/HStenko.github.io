@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portfolio</title>
+<meta name="description" content="Fashion designer and educator — selected work.">
+
+<!-- ════════════════════════════════════════════════════════════════════
+     FONTS — loaded free from Google Fonts. No account or payment needed.
+     ════════════════════════════════════════════════════════════════════ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS  —  change these to restyle the whole site at once
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --paper:  #FCFBF9;   /* the page surface            */
+  --stage:  #E9E5DD;   /* the gallery wall behind it  */
+  --ink:    #1A1714;   /* main text                   */
+  --muted:  #8E887C;   /* captions, secondary text    */
+  --line:   #D9D3C8;   /* hairlines                   */
+  --accent: #5E2A33;   /* oxblood — used in tiny doses */
+
+  --display: 'Bodoni Moda', Georgia, 'Times New Roman', serif;
+  --ui: 'Jost', system-ui, -apple-system, sans-serif;
+
+  --page-w: min(86vw, 56vh, 560px);   /* page keeps a portrait lookbook ratio */
+  --page-h: calc(var(--page-w) * 1.38);
+  --turn: 720ms;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{ height:100%; }
+body{
+  background:var(--stage);
+  color:var(--ink);
+  font-family:var(--ui);
+  font-weight:300;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  background-image:radial-gradient(120% 90% at 50% 22%, #F1EDE6 0%, var(--stage) 55%, #DED8CE 100%);
+}
+
+/* ─── top label ─────────────────────────────────────────────── */
+.masthead{
+  flex:0 0 auto;
+  text-align:center;
+  padding:clamp(18px,4vh,34px) 16px 6px;
+}
+.masthead .name{
+  font-family:var(--display);
+  font-weight:500;
+  font-size:clamp(15px,1.5vw,18px);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.masthead .role{
+  font-size:10px;
+  letter-spacing:.42em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-top:7px;
+}
+
+/* ─── the stage that holds the turning page ─────────────────── */
+.stage{
+  flex:1 1 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:2200px;
+  position:relative;
+}
+.book{
+  position:relative;
+  width:var(--page-w);
+  height:var(--page-h);
+  transform-style:preserve-3d;
+}
+
+/* ─── a single page ─────────────────────────────────────────── */
+.leaf{
+  position:absolute;
+  inset:0;
+  background:var(--paper);
+  transform-origin:left center;
+  backface-visibility:hidden;
+  transform-style:preserve-3d;
+  box-shadow:
+     0 2px 1px rgba(0,0,0,.04),
+     0 22px 40px -18px rgba(40,34,24,.42);
+  display:flex;
+  flex-direction:column;
+  background-image:linear-gradient(90deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.02) 3%, rgba(0,0,0,0) 7%);
+  opacity:0;
+  pointer-events:none;
+  visibility:hidden;
+}
+.leaf.is-current{ opacity:1; visibility:visible; pointer-events:auto; z-index:3; }
+.leaf.is-under{   opacity:1; visibility:visible; z-index:1; }
+.leaf.is-turning{ visibility:visible; z-index:4; transition:transform var(--turn) cubic-bezier(.2,.7,.2,1); }
+
+.leaf .shade{
+  position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(90deg, rgba(20,15,8,.28), rgba(20,15,8,0) 55%);
+  opacity:0; transition:opacity var(--turn) ease;
+}
+.leaf.is-turning .shade{ opacity:1; }
+
+/* ─── plate (image area) + caption ──────────────────────────── */
+.plate{
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  padding:clamp(20px,3.4vh,34px);
+  gap:clamp(12px,2vh,20px);
+}
+.plate-img{
+  flex:1 1 auto;
+  position:relative;
+  overflow:hidden;
+  background:#F3EFE8;
+  display:flex; align-items:center; justify-content:center;
+}
+.plate-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+.plate-img.empty{
+  border:1px solid var(--line);
+  background:
+    repeating-linear-gradient(135deg, rgba(0,0,0,.014) 0 14px, transparent 14px 28px),
+    #F4F0E9;
+}
+.plate-img.empty::after{
+  content:attr(data-label);
+  font-size:10px; letter-spacing:.34em; text-transform:uppercase;
+  color:var(--muted);
+}
+.caption{ flex:0 0 auto; }
+.caption .t{
+  font-family:var(--display);
+  font-weight:500;
+  font-size:clamp(17px,2.2vw,23px);
+  line-height:1.15;
+}
+.caption .m{
+  margin-top:6px;
+  font-size:11.5px;
+  letter-spacing:.04em;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+/* ─── cover & closing pages ─────────────────────────────────── */
+.cover, .closing{
+  flex:1 1 auto;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding:clamp(28px,5vh,52px);
+  gap:18px;
+}
+.cover .eyebrow, .closing .eyebrow{
+  font-size:10px; letter-spacing:.42em; text-transform:uppercase; color:var(--muted);
+}
+.cover h1{
+  font-family:var(--display);
+  font-weight:500;
+  font-size:clamp(34px,7vw,62px);
+  line-height:1.02;
+  letter-spacing:.005em;
+}
+.cover .rule{ width:44px; height:1px; background:var(--ink); opacity:.6; }
+.cover .sub{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(15px,2vw,19px);
+  color:var(--ink);
+}
+.cover .year{ font-size:11px; letter-spacing:.34em; color:var(--muted); }
+.closing h2{
+  font-family:var(--display); font-weight:500; font-style:italic;
+  font-size:clamp(20px,3vw,28px);
+}
+.closing .next{
+  font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted);
+  line-height:2;
+}
+
+/* ─── controls ──────────────────────────────────────────────── */
+.controls{
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; gap:22px;
+  padding:clamp(14px,3vh,26px) 16px clamp(20px,4vh,32px);
+}
+.nav{
+  appearance:none; background:none; border:none; cursor:pointer;
+  font-family:var(--ui); color:var(--ink);
+  width:42px; height:42px; border-radius:50%;
+  display:grid; place-items:center;
+  transition:background .25s ease, opacity .25s ease;
+}
+.nav:hover{ background:rgba(0,0,0,.05); }
+.nav:disabled{ opacity:.22; cursor:default; }
+.nav svg{ width:17px; height:17px; }
+.nav:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+.folio{
+  font-size:11px; letter-spacing:.3em; color:var(--muted);
+  min-width:74px; text-align:center; font-variant-numeric:tabular-nums;
+}
+.folio b{ color:var(--accent); font-weight:500; }
+
+.tapzone{ position:absolute; top:0; bottom:0; width:34%; z-index:6; cursor:pointer; }
+.tapzone.prev{ left:0; }
+.tapzone.next{ right:0; width:66%; }
+
+@media (prefers-reduced-motion: reduce){
+  .leaf.is-turning{ transition-duration:1ms; }
+  .leaf .shade{ display:none; }
+}
+</style>
+</head>
+<body>
+
+  <header class="masthead">
+    <!-- ▶ CHANGE YOUR NAME AND TITLE HERE ◀ -->
+    <div class="name">Your Name</div>
+    <div class="role">Fashion Designer &amp; Educator</div>
+  </header>
+
+  <main class="stage" aria-label="Portfolio, leaf through page by page">
+    <div class="book" id="book"></div>
+    <div class="tapzone prev" id="zonePrev" aria-hidden="true"></div>
+    <div class="tapzone next" id="zoneNext" aria-hidden="true"></div>
+  </main>
+
+  <nav class="controls" aria-label="Page navigation">
+    <button class="nav" id="prev" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="folio" id="folio">— —</div>
+    <button class="nav" id="next" aria-label="Next page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </nav>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   YOUR PORTFOLIO  —  this is the only part you'll usually edit.
+
+   To add a project: copy one { ... } block and fill it in.
+   To add an image:  put your file in an "images" folder next to this
+                     file, then set  img:"images/yourfile.jpg"
+   Leave  img:""  to keep the elegant placeholder for now.
+   ════════════════════════════════════════════════════════════════════ */
+const pages = [
+  { type:"cover" },
+
+  { img:"", title:"LVMH Nona Source",
+    meta:"Reclaimed couture — with Louis Vuitton, Dior & Loewe · 2024" },
+
+  { img:"", title:"Alexander McQueen",
+    meta:"Menswear collaboration · 2023" },
+
+  { img:"", title:"Charles Jeffrey LOVERBOY",
+    meta:"Design · 2022–23" },
+
+  { img:"", title:"Project Title",
+    meta:"Discipline — your role · Year" },
+
+  { img:"", title:"Project Title",
+    meta:"Discipline — your role · Year" },
+
+  { type:"closing" },
+];
+
+const book = document.getElementById("book");
+let plateNo = 0;
+
+pages.forEach((p, i) => {
+  const leaf = document.createElement("article");
+  leaf.className = "leaf";
+  leaf.dataset.index = i;
+
+  let inner = "";
+  if (p.type === "cover") {
+    inner = `<div class="cover">
+        <div class="eyebrow">Selected Work</div>
+        <h1>Your<br>Name</h1>
+        <div class="rule"></div>
+        <div class="sub">Fashion design &amp; education</div>
+        <div class="year">2026</div>
+      </div>`;
+  } else if (p.type === "closing") {
+    inner = `<div class="closing">
+        <div class="eyebrow">Thank you</div>
+        <h2>More to come</h2>
+        <div class="next">About · Teaching<br>Contact · Download CV</div>
+      </div>`;
+  } else {
+    plateNo++;
+    const label = "Image " + String(plateNo).padStart(2,"0");
+    const media = p.img
+      ? `<div class="plate-img"><img src="${p.img}" alt="${p.title}"></div>`
+      : `<div class="plate-img empty" data-label="${label}"></div>`;
+    inner = `<div class="plate">
+        ${media}
+        <figcaption class="caption">
+          <div class="t">${p.title || ""}</div>
+          <div class="m">${p.meta || ""}</div>
+        </figcaption>
+      </div>`;
+  }
+  leaf.innerHTML = `<div class="shade"></div>${inner}`;
+  book.appendChild(leaf);
+});
+
+const leaves = [...book.querySelectorAll(".leaf")];
+const total  = leaves.length;
+let current  = 0;
+let busy     = false;
+
+const folio = document.getElementById("folio");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+
+function paint(){
+  leaves.forEach((l,i)=> l.className = "leaf" + (i===current ? " is-current" : ""));
+  folio.innerHTML = `<b>${String(current+1).padStart(2,"0")}</b> / ${String(total).padStart(2,"0")}`;
+  prevBtn.disabled = current===0;
+  nextBtn.disabled = current===total-1;
+}
+paint();
+
+function go(dir){
+  if (busy) return;
+  const target = current + dir;
+  if (target < 0 || target >= total) return;
+  busy = true;
+
+  const outgoing = leaves[current];
+  const incoming = leaves[target];
+
+  if (dir > 0){
+    incoming.className = "leaf is-under";
+    outgoing.className = "leaf is-current";
+    requestAnimationFrame(()=>{
+      outgoing.classList.add("is-turning");
+      outgoing.style.transform = "rotateY(-168deg)";
+    });
+  } else {
+    outgoing.className = "leaf is-under";
+    incoming.className = "leaf is-turning";
+    incoming.style.transform = "rotateY(-168deg)";
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{ incoming.style.transform = "rotateY(0deg)"; });
+    });
+  }
+
+  const mover = dir > 0 ? outgoing : incoming;
+  const done = ()=>{
+    mover.removeEventListener("transitionend", done);
+    mover.style.transform = "";
+    current = target;
+    busy = false;
+    paint();
+  };
+  mover.addEventListener("transitionend", done);
+  setTimeout(()=>{ if(busy && current!==target) done(); }, 1000);
+}
+
+nextBtn.addEventListener("click", ()=>go(1));
+prevBtn.addEventListener("click", ()=>go(-1));
+document.getElementById("zoneNext").addEventListener("click", ()=>go(1));
+document.getElementById("zonePrev").addEventListener("click", ()=>go(-1));
+document.addEventListener("keydown", e=>{
+  if (e.key==="ArrowRight" || e.key==="PageDown") go(1);
+  if (e.key==="ArrowLeft"  || e.key==="PageUp")   go(-1);
+});
+let touchX = null;
+document.addEventListener("touchstart", e=>{ touchX = e.changedTouches[0].clientX; }, {passive:true});
+document.addEventListener("touchend", e=>{
+  if (touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1);
+  touchX = null;
+}, {passive:true});
+</script>
+</body>
+</html>
