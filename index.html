@@ -126,7 +126,8 @@
   <header>
     <span class="name" id="nameReset">Herman Stenko</span>
     <div class="right">
-      <span class="tag">Portfolio</span>
+      <a class="tag-link" href="#" id="portfolioLink">Portfolio</a>
+      <a class="tag-link" href="/about">About</a>
       <a class="tag-link" href="#" id="cvLink">Request CV</a>
       <a class="tag-link" href="#" id="contactLink">Contact</a>
     </div>
@@ -275,6 +276,7 @@
     });
 
     document.getElementById("nameReset").addEventListener("click", ()=>{ if(pdfDoc) render(1); });
+    document.getElementById("portfolioLink").addEventListener("click", e=>{ e.preventDefault(); if(pdfDoc) render(1); });
 
     const fsBtn = document.getElementById("fsBtn");
     fsBtn.addEventListener("click", ()=>{

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About — Herman Stenko</title>
+<meta name="description" content="About Herman Stenko — London-based fashion designer and educator.">
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ min-height:100%; }
+  body{
+    background:#ffffff;
+    color:#111;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    display:flex; flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  /* ── tiny header ───────────────────────────────────────── */
+  header{
+    flex:0 0 auto;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px clamp(20px,4vw,40px) 12px;
+  }
+  header .name{ font-size:14px; letter-spacing:.12em; text-transform:uppercase; font-weight:500; line-height:1; color:#111; text-decoration:none; cursor:pointer; user-select:none; }
+  header .tag-link{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; text-decoration:none; }
+  header .tag-link:hover{ color:#555; }
+  header .right{ display:flex; align-items:center; gap:20px; line-height:1; }
+
+  /* ── about content ─────────────────────────────────────── */
+  .about{
+    flex:1 1 auto;
+    display:flex; justify-content:center;
+    padding: clamp(40px,8vh,90px) clamp(20px,4vw,40px) clamp(48px,8vh,80px);
+  }
+  .about-inner{ max-width:620px; width:100%; }
+  .about h1{
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    font-weight:500; color:#9a9a9a; margin-bottom:34px;
+  }
+  .about p{ font-size:15px; line-height:1.75; color:#1a1a1a; margin-bottom:20px; }
+  .about p:last-child{ margin-bottom:0; }
+
+  /* ── modal popup ───────────────────────────────────────── */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.35);
+    display:none; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+  }
+  .modal-backdrop.open{ display:flex; }
+  .modal{
+    background:#fff; padding:28px 30px; max-width:440px; width:100%;
+    box-shadow:0 20px 60px -16px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.08);
+    position:relative;
+  }
+  .modal-title{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; margin-bottom:14px; }
+  .modal-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .modal-label{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#9a9a9a; min-width:60px; }
+  .modal-value{ font-size:14px; color:#111; flex:1; white-space:nowrap; }
+  .modal-value a{ color:#111; text-decoration:none; border-bottom:1px solid #ddd; }
+  .modal-value a:hover{ border-color:#111; }
+  .modal-copy{
+    appearance:none; background:none; border:1px solid #ddd; cursor:pointer;
+    font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:#666;
+    padding:6px 10px; transition:border-color .2s, color .2s;
+  }
+  .modal-copy:hover{ border-color:#111; color:#111; }
+  .modal-copy.copied{ border-color:#111; color:#111; }
+  .modal-foot{ margin-top:18px; font-size:11px; letter-spacing:.08em; color:#9a9a9a; }
+  .modal-foot a{ color:#666; text-decoration:none; border-bottom:1px solid #ddd; }
+  .modal-foot a:hover{ color:#111; border-color:#111; }
+  .modal-close{
+    position:absolute; top:10px; right:12px; background:none; border:none; cursor:pointer;
+    font-size:18px; line-height:1; color:#9a9a9a; padding:4px;
+  }
+  .modal-close:hover{ color:#111; }
+</style>
+</head>
+<body>
+
+  <header>
+    <a class="name" href="/">Herman Stenko</a>
+    <div class="right">
+      <a class="tag-link" href="/">Portfolio</a>
+      <a class="tag-link" href="/about">About</a>
+      <a class="tag-link" href="#" id="cvLink">Request CV</a>
+      <a class="tag-link" href="#" id="contactLink">Contact</a>
+    </div>
+  </header>
+
+  <main class="about">
+    <div class="about-inner">
+      <h1>About</h1>
+      <p>Herman Stenko is a London-based fashion designer and educator. A Central Saint Martins graduate in Fashion Design and Marketing, he is currently completing an MA in Fashion Marketing at London College of Fashion.</p>
+      <p>His work is craft-led and material-driven, rooted in pattern cutting, construction, and experimentation with texture and reclaimed fabric. He first gained recognition as a winner of the LVMH Nona Source project, working alongside designers from Louis Vuitton, Dior, and Loewe on sustainability and fabric innovation, and has since collaborated with Alexander McQueen and designed at Charles Jeffrey LOVERBOY.</p>
+      <p>Alongside his practice, he is a dedicated educator. With over four years of teaching across Central Saint Martins, London College of Fashion, and international programmes, he guides students through the full creative process — from first research to finished portfolio — helping them shape a design identity that is unmistakably their own.</p>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="cvModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cvModalTitle">
+      <button class="modal-close" data-close="cvModal" aria-label="Close">×</button>
+      <div class="modal-title" id="cvModalTitle">Request CV</div>
+      <div class="modal-row">
+        <span class="modal-label">Subject</span>
+        <span class="modal-value">CV request</span>
+        <button class="modal-copy" data-copy-text="CV request">Copy</button>
+      </div>
+      <div class="modal-row">
+        <span class="modal-label">Email</span>
+        <span class="modal-value">herman140920@gmail.com</span>
+        <button class="modal-copy" data-copy-text="herman140920@gmail.com">Copy</button>
+      </div>
+      <div class="modal-foot">or <a href="mailto:herman140920@gmail.com?subject=CV%20request">open in your mail app</a></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="contactModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
+      <button class="modal-close" data-close="contactModal" aria-label="Close">×</button>
+      <div class="modal-title" id="contactModalTitle">Contact</div>
+      <div class="modal-row">
+        <span class="modal-label">Email</span>
+        <span class="modal-value">herman140920@gmail.com</span>
+        <button class="modal-copy" data-copy-text="herman140920@gmail.com">Copy</button>
+      </div>
+      <div class="modal-row">
+        <span class="modal-label">Instagram</span>
+        <span class="modal-value"><a href="https://www.instagram.com/h.stenko/" target="_blank" rel="noopener">@h.stenko</a></span>
+      </div>
+      <!-- LinkedIn row goes here when ready -->
+    </div>
+  </div>
+
+  <script>
+    function openModal(id){
+      const m = document.getElementById(id);
+      m.querySelectorAll(".modal-copy").forEach(b=>{ b.textContent = "Copy"; b.classList.remove("copied"); });
+      m.classList.add("open");
+      m.setAttribute("aria-hidden","false");
+    }
+    function closeModal(m){ m.classList.remove("open"); m.setAttribute("aria-hidden","true"); }
+
+    document.getElementById("cvLink").addEventListener("click", e=>{ e.preventDefault(); openModal("cvModal"); });
+    document.getElementById("contactLink").addEventListener("click", e=>{ e.preventDefault(); openModal("contactModal"); });
+
+    document.querySelectorAll(".modal-backdrop").forEach(m=>{
+      m.addEventListener("click", e=>{ if(e.target === m) closeModal(m); });
+    });
+    document.querySelectorAll("[data-close]").forEach(btn=>{
+      btn.addEventListener("click", ()=> closeModal(document.getElementById(btn.dataset.close)));
+    });
+    document.addEventListener("keydown", e=>{
+      if(e.key !== "Escape") return;
+      document.querySelectorAll(".modal-backdrop.open").forEach(closeModal);
+    });
+
+    document.querySelectorAll(".modal-copy").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const text = btn.dataset.copyText;
+        try { await navigator.clipboard.writeText(text); }
+        catch { const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(()=>{ btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1600);
+      });
+    });
+  </script>
+</body>
+</html>
