@@ -21,13 +21,14 @@
   header{
     flex:0 0 auto;
     display:flex; justify-content:space-between; align-items:center;
-    padding:18px clamp(18px,4vw,40px) 4px;
+    padding:18px clamp(20px,4vw,40px) 12px;
   }
   header .name{ font-size:14px; letter-spacing:.12em; text-transform:uppercase; font-weight:500; cursor:pointer; user-select:none; }
   header .tag{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; }
   header .tag-link{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; text-decoration:none; }
   header .tag-link:hover{ color:#555; }
-  header .right{ display:flex; align-items:center; gap:18px; }
+  header .right{ display:flex; align-items:center; gap:20px; line-height:1; }
+  header .name{ line-height:1; }
   :fullscreen header .name{ visibility:hidden; }
   :-webkit-full-screen header .name{ visibility:hidden; }
   :fullscreen header{ padding-top: clamp(14px,2.5vh,24px); padding-bottom: clamp(14px,2.5vh,24px); }
@@ -80,7 +81,7 @@
   .nav svg{ width:16px; height:16px; }
   .nav:focus-visible{ outline:2px solid #111; outline-offset:3px; }
   .folio{ font-size:12px; letter-spacing:.18em; color:#666; min-width:70px; text-align:center; font-variant-numeric:tabular-nums; }
-  .fs-btn{ background:none; border:none; cursor:pointer; color:#9a9a9a; font-size:16px; line-height:1; padding:0; width:40px; height:40px; display:grid; place-items:center; }
+  .fs-btn{ background:none; border:none; cursor:pointer; color:#9a9a9a; font-size:16px; line-height:1; padding:0 0 4px 0; width:40px; height:40px; display:grid; place-items:center; }
   .fs-btn:hover{ color:#555; }
 
   /* ── modal popup ───────────────────────────────────────── */
