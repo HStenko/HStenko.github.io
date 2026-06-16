@@ -27,9 +27,9 @@
   header .tag{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; }
   header .tag-link{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; text-decoration:none; }
   header .tag-link:hover{ color:#555; }
-  header .fs-btn{ background:none; border:none; cursor:pointer; color:#9a9a9a; font-size:16px; line-height:1; padding:0 0 0 10px; vertical-align:middle; }
-  header .fs-btn:hover{ color:#555; }
   header .right{ display:flex; align-items:baseline; gap:14px; }
+  :fullscreen header{ display:none; }
+  :-webkit-full-screen header{ display:none; }
 
   /* ── the page stage ────────────────────────────────────── */
   .stage{
@@ -75,6 +75,40 @@
   .nav svg{ width:16px; height:16px; }
   .nav:focus-visible{ outline:2px solid #111; outline-offset:3px; }
   .folio{ font-size:12px; letter-spacing:.18em; color:#666; min-width:70px; text-align:center; font-variant-numeric:tabular-nums; }
+  .fs-btn{ background:none; border:none; cursor:pointer; color:#9a9a9a; font-size:16px; line-height:1; padding:6px; }
+  .fs-btn:hover{ color:#555; }
+
+  /* ── modal popup ───────────────────────────────────────── */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.35);
+    display:none; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+  }
+  .modal-backdrop.open{ display:flex; }
+  .modal{
+    background:#fff; padding:28px 30px; max-width:360px; width:100%;
+    box-shadow:0 20px 60px -16px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.08);
+    position:relative;
+  }
+  .modal-title{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; margin-bottom:14px; }
+  .modal-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .modal-label{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#9a9a9a; min-width:60px; }
+  .modal-value{ font-size:14px; color:#111; font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; flex:1; word-break:break-all; }
+  .modal-copy{
+    appearance:none; background:none; border:1px solid #ddd; cursor:pointer;
+    font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:#666;
+    padding:6px 10px; transition:border-color .2s, color .2s;
+  }
+  .modal-copy:hover{ border-color:#111; color:#111; }
+  .modal-copy.copied{ border-color:#111; color:#111; }
+  .modal-foot{ margin-top:18px; font-size:11px; letter-spacing:.08em; color:#9a9a9a; }
+  .modal-foot a{ color:#666; text-decoration:none; border-bottom:1px solid #ddd; }
+  .modal-foot a:hover{ color:#111; border-color:#111; }
+  .modal-close{
+    position:absolute; top:10px; right:12px; background:none; border:none; cursor:pointer;
+    font-size:18px; line-height:1; color:#9a9a9a; padding:4px;
+  }
+  .modal-close:hover{ color:#111; }
 
   @media (prefers-reduced-motion: reduce){ .page{ transition:none; } }
 </style>
@@ -85,9 +119,8 @@
     <span class="name" id="nameReset">Herman Stenko</span>
     <div class="right">
       <span class="tag">Portfolio</span>
-      <a class="tag-link" href="mailto:herman140920@gmail.com?subject=CV%20request">Request CV</a>
-      <a class="tag-link" href="mailto:herman140920@gmail.com">Contact</a>
-      <button class="fs-btn" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">⤢</button>
+      <a class="tag-link" href="#" id="cvLink">Request CV</a>
+      <a class="tag-link" href="#" id="contactLink">Contact</a>
     </div>
   </header>
 
@@ -106,7 +139,26 @@
     <button class="nav" id="next" aria-label="Next page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg>
     </button>
+    <button class="fs-btn" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">⤢</button>
   </nav>
+
+  <div class="modal-backdrop" id="modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+      <div class="modal-title" id="modalTitle">Contact</div>
+      <div class="modal-row" id="subjectRow" hidden>
+        <span class="modal-label">Subject</span>
+        <span class="modal-value" id="modalSubject">CV request</span>
+        <button class="modal-copy" data-copy="subject">Copy</button>
+      </div>
+      <div class="modal-row">
+        <span class="modal-label">Email</span>
+        <span class="modal-value" id="modalEmail">herman140920@gmail.com</span>
+        <button class="modal-copy" data-copy="email">Copy</button>
+      </div>
+      <div class="modal-foot">or <a href="#" id="modalMailto">open in your mail app</a></div>
+    </div>
+  </div>
 
   <!-- PDF rendering engine (loaded free from a public CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -205,6 +257,49 @@
     });
     document.addEventListener("fullscreenchange", ()=>{
       fsBtn.textContent = document.fullscreenElement ? "⤡" : "⤢";
+    });
+
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const subjectRow = document.getElementById("subjectRow");
+    const modalMailto = document.getElementById("modalMailto");
+    const EMAIL = "herman140920@gmail.com";
+    const CV_SUBJECT = "CV request";
+
+    function openModal(kind){
+      if(kind === "cv"){
+        modalTitle.textContent = "Request CV";
+        subjectRow.hidden = false;
+        modalMailto.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent(CV_SUBJECT);
+      } else {
+        modalTitle.textContent = "Contact";
+        subjectRow.hidden = true;
+        modalMailto.href = "mailto:" + EMAIL;
+      }
+      modal.querySelectorAll(".modal-copy").forEach(b=>{ b.textContent = "Copy"; b.classList.remove("copied"); });
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden","false");
+    }
+    function closeModal(){
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden","true");
+    }
+
+    document.getElementById("cvLink").addEventListener("click", e=>{ e.preventDefault(); openModal("cv"); });
+    document.getElementById("contactLink").addEventListener("click", e=>{ e.preventDefault(); openModal("contact"); });
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    modal.addEventListener("click", e=>{ if(e.target === modal) closeModal(); });
+    document.addEventListener("keydown", e=>{ if(e.key === "Escape" && modal.classList.contains("open")) closeModal(); });
+
+    modal.querySelectorAll(".modal-copy").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const text = btn.dataset.copy === "subject" ? CV_SUBJECT : EMAIL;
+        try { await navigator.clipboard.writeText(text); }
+        catch { const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(()=>{ btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1600);
+      });
     });
   </script>
 </body>
