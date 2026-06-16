@@ -70,7 +70,7 @@
     display:flex; align-items:center; justify-content:center; gap:20px;
     padding:10px 16px clamp(16px,3vh,26px);
   }
-  .controls .fs-btn{ position:absolute; left:50%; margin-left:108px; top:50%; transform:translateY(-50%); }
+  .controls .spacer{ width:40px; height:40px; visibility:hidden; }
   .nav{
     appearance:none; background:none; border:none; cursor:pointer; color:#111;
     width:40px; height:40px; border-radius:50%;
@@ -140,6 +140,7 @@
   </main>
 
   <nav class="controls" aria-label="Page navigation">
+    <div class="spacer" aria-hidden="true"></div>
     <button class="nav" id="prev" aria-label="Previous page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
