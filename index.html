@@ -23,8 +23,13 @@
     display:flex; justify-content:space-between; align-items:baseline;
     padding:18px clamp(18px,4vw,40px) 4px;
   }
-  header .name{ font-size:14px; letter-spacing:.12em; text-transform:uppercase; font-weight:500; }
+  header .name{ font-size:14px; letter-spacing:.12em; text-transform:uppercase; font-weight:500; cursor:pointer; user-select:none; }
   header .tag{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; }
+  header .tag-link{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#9a9a9a; text-decoration:none; }
+  header .tag-link:hover{ color:#555; }
+  header .fs-btn{ background:none; border:none; cursor:pointer; color:#9a9a9a; font-size:16px; line-height:1; padding:0 0 0 10px; vertical-align:middle; }
+  header .fs-btn:hover{ color:#555; }
+  header .right{ display:flex; align-items:baseline; gap:14px; }
 
   /* ── the page stage ────────────────────────────────────── */
   .stage{
@@ -77,9 +82,13 @@
 <body>
 
   <header>
-    <!-- ▶ your name / label — edit freely -->
-    <span class="name">Herman Stenko</span>
-    <span class="tag">Portfolio</span>
+    <span class="name" id="nameReset">Herman Stenko</span>
+    <div class="right">
+      <span class="tag">Portfolio</span>
+      <a class="tag-link" href="cv.pdf" target="_blank">CV</a>
+      <a class="tag-link" href="mailto:herman140920@gmail.com">Contact</a>
+      <button class="fs-btn" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">⤢</button>
+    </div>
   </header>
 
   <main class="stage">
@@ -185,6 +194,17 @@
 
     let rz; window.addEventListener("resize", ()=>{
       clearTimeout(rz); rz=setTimeout(()=>{ if(pdfDoc) render(current); }, 160);
+    });
+
+    document.getElementById("nameReset").addEventListener("click", ()=>{ if(pdfDoc) render(1); });
+
+    const fsBtn = document.getElementById("fsBtn");
+    fsBtn.addEventListener("click", ()=>{
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    });
+    document.addEventListener("fullscreenchange", ()=>{
+      fsBtn.textContent = document.fullscreenElement ? "⤡" : "⤢";
     });
   </script>
 </body>
