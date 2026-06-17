@@ -118,6 +118,31 @@
   .modal-close:hover{ color:#111; }
 
   @media (prefers-reduced-motion: reduce){ .page{ transition:none; } }
+
+  /* ── mobile header: stack name above links ─────────────── */
+  @media (max-width: 600px){
+    header{
+      flex-direction:column; align-items:center; row-gap:8px;
+      padding:12px 16px 10px;
+    }
+    header .name{ font-size:12px; letter-spacing:.1em; }
+    header .right{ gap:14px; }
+    header .tag-link{ font-size:10px; letter-spacing:.14em; }
+  }
+
+  /* ── mobile fullscreen fallback (no real FS API) ───────── */
+  body.fs-fallback{ overflow:hidden; }
+  body.fs-fallback header{ display:none; }
+  body.fs-fallback .stage{
+    position:fixed; inset:0; padding:8px;
+    background:#fff; z-index:40;
+  }
+  body.fs-fallback .controls{
+    position:fixed; left:0; right:0; bottom:0;
+    background:rgba(255,255,255,.94);
+    padding:10px 16px calc(env(safe-area-inset-bottom, 0px) + 14px);
+    z-index:41;
+  }
 </style>
 </head>
 <body>
@@ -280,14 +305,22 @@
     document.getElementById("portfolioLink").addEventListener("click", e=>{ e.preventDefault(); if(pdfDoc) render(1); });
 
     const fsBtn = document.getElementById("fsBtn");
-    fsBtn.addEventListener("click", ()=>{
-      if(!document.fullscreenElement) document.documentElement.requestFullscreen();
-      else document.exitFullscreen();
-    });
+    const fsIcon = document.getElementById("fsIcon");
     const FS_EXPAND = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>';
     const FS_COLLAPSE = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
+    const realFsSupported = !!(document.fullscreenEnabled && document.documentElement.requestFullscreen);
+    fsBtn.addEventListener("click", ()=>{
+      if(realFsSupported){
+        if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      } else {
+        const on = document.body.classList.toggle("fs-fallback");
+        fsIcon.innerHTML = on ? FS_COLLAPSE : FS_EXPAND;
+        if(pdfDoc) setTimeout(()=>render(current), 50);
+      }
+    });
     document.addEventListener("fullscreenchange", ()=>{
-      document.getElementById("fsIcon").innerHTML = document.fullscreenElement ? FS_COLLAPSE : FS_EXPAND;
+      fsIcon.innerHTML = document.fullscreenElement ? FS_COLLAPSE : FS_EXPAND;
     });
 
     function openModal(id){
