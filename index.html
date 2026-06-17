@@ -81,8 +81,6 @@
   .nav svg{ width:16px; height:16px; }
   .nav:focus-visible{ outline:2px solid #111; outline-offset:3px; }
   .folio{ font-size:12px; letter-spacing:.18em; color:#666; min-width:70px; text-align:center; font-variant-numeric:tabular-nums; }
-  .fs-btn{ background:none; border:none; cursor:pointer; color:#9a9a9a; font-size:16px; line-height:1; padding:0 0 4px 0; width:40px; height:40px; display:grid; place-items:center; }
-  .fs-btn:hover{ color:#555; }
 
   /* ── modal popup ───────────────────────────────────────── */
   .modal-backdrop{
@@ -149,7 +147,9 @@
     <button class="nav" id="next" aria-label="Next page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg>
     </button>
-    <button class="fs-btn" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">⤢</button>
+    <button class="nav" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+      <svg id="fsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
   </nav>
 
   <div class="modal-backdrop" id="cvModal" aria-hidden="true">
@@ -283,8 +283,10 @@
       if(!document.fullscreenElement) document.documentElement.requestFullscreen();
       else document.exitFullscreen();
     });
+    const FS_EXPAND = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>';
+    const FS_COLLAPSE = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
     document.addEventListener("fullscreenchange", ()=>{
-      fsBtn.textContent = document.fullscreenElement ? "⤡" : "⤢";
+      document.getElementById("fsIcon").innerHTML = document.fullscreenElement ? FS_COLLAPSE : FS_EXPAND;
     });
 
     function openModal(id){
