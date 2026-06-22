@@ -230,7 +230,8 @@
        Put your portfolio file in this folder named exactly
        portfolio.pdf  — or change the name on the next line.
        ════════════════════════════════════════════════════════ */
-    const PDF_URL = "portfolio.pdf";
+    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    const PDF_URL = isMobile ? "portfolio-mobile.pdf" : "portfolio.pdf";
 
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
