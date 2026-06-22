@@ -30,12 +30,18 @@
   header .tag-link:hover{ color:#555; }
   header .right{ display:flex; align-items:center; gap:20px; line-height:1; }
   header .name{ line-height:1; }
-  :fullscreen header .name{ visibility:hidden; }
-  :-webkit-full-screen header .name{ visibility:hidden; }
-  :fullscreen header{ padding-top: clamp(14px,2.5vh,24px); padding-bottom: clamp(14px,2.5vh,24px); }
-  :-webkit-full-screen header{ padding-top: clamp(14px,2.5vh,24px); padding-bottom: clamp(14px,2.5vh,24px); }
-  :fullscreen .controls{ padding-top: clamp(14px,2.5vh,24px); padding-bottom: clamp(14px,2.5vh,24px); }
-  :-webkit-full-screen .controls{ padding-top: clamp(14px,2.5vh,24px); padding-bottom: clamp(14px,2.5vh,24px); }
+  :fullscreen header, :-webkit-full-screen header{ display:none; }
+  :fullscreen .stage, :-webkit-full-screen .stage{ padding:0; }
+  :fullscreen .page img, :-webkit-full-screen .page img{
+    max-width:100vw; max-height:100vh;
+  }
+  :fullscreen .controls, :-webkit-full-screen .controls{
+    position:fixed; left:0; right:0; bottom:0;
+    background:rgba(255,255,255,.88);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    padding:10px 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+    z-index:50;
+  }
 
   /* ── the page stage ────────────────────────────────────── */
   .stage{
@@ -161,10 +167,34 @@
   }
   body.fs-fallback .controls{
     position:fixed; left:0; right:0; bottom:0;
-    background:rgba(255,255,255,.94);
+    background:rgba(255,255,255,.88);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
     padding:10px 16px calc(env(safe-area-inset-bottom, 0px) + 14px);
     z-index:41;
   }
+  body.fs-fallback .page img{ max-width:100vw; max-height:100vh; }
+
+  /* bigger, more noticeable fullscreen button on mobile */
+  @media (max-width: 600px){
+    #fsBtn{ width:48px; height:48px; box-shadow:0 0 0 1px #e5e5e5 inset; }
+    #fsBtn svg{ width:20px; height:20px; }
+  }
+
+  /* one-time fullscreen hint (mobile only) */
+  .fs-hint{
+    position:absolute; right:8px; bottom:calc(100% + 6px);
+    font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+    color:#666; background:rgba(255,255,255,.95);
+    border:1px solid #e5e5e5; padding:6px 9px; line-height:1;
+    white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity .35s ease;
+  }
+  .fs-hint::after{
+    content:""; position:absolute; right:18px; top:100%;
+    border:5px solid transparent; border-top-color:rgba(255,255,255,.95);
+  }
+  body.show-fs-hint .fs-hint{ opacity:1; }
+  @media (min-width: 601px){ .fs-hint{ display:none; } }
 </style>
 </head>
 <body>
@@ -203,6 +233,7 @@
     </button>
     <button class="nav" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
       <svg id="fsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <span class="fs-hint" id="fsHint">Tap for fullscreen</span>
     </button>
   </nav>
 
@@ -328,19 +359,41 @@
     const fsIcon = document.getElementById("fsIcon");
     const FS_EXPAND = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>';
     const FS_COLLAPSE = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
-    const realFsSupported = !!(document.fullscreenEnabled && document.documentElement.requestFullscreen);
+    const docEl = document.documentElement;
+    const requestFs = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+    const exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+    function fsElement(){ return document.fullscreenElement || document.webkitFullscreenElement; }
+    function inFallbackFs(){ return document.body.classList.contains("fs-fallback"); }
+    function syncFsIcon(){
+      fsIcon.innerHTML = (fsElement() || inFallbackFs()) ? FS_COLLAPSE : FS_EXPAND;
+    }
     fsBtn.addEventListener("click", ()=>{
-      if(realFsSupported){
-        if(!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else document.exitFullscreen();
+      hideFsHint();
+      if(requestFs){
+        if(!fsElement()) requestFs.call(docEl);
+        else exitFs.call(document);
       } else {
-        const on = document.body.classList.toggle("fs-fallback");
-        fsIcon.innerHTML = on ? FS_COLLAPSE : FS_EXPAND;
+        document.body.classList.toggle("fs-fallback");
+        syncFsIcon();
       }
     });
-    document.addEventListener("fullscreenchange", ()=>{
-      fsIcon.innerHTML = document.fullscreenElement ? FS_COLLAPSE : FS_EXPAND;
-    });
+    document.addEventListener("fullscreenchange", syncFsIcon);
+    document.addEventListener("webkitfullscreenchange", syncFsIcon);
+
+    // one-time fullscreen hint on mobile
+    function hideFsHint(){
+      if(!document.body.classList.contains("show-fs-hint")) return;
+      document.body.classList.remove("show-fs-hint");
+      try { localStorage.setItem("fsHintSeen", "1"); } catch {}
+    }
+    if(isMobile){
+      let seen = false;
+      try { seen = localStorage.getItem("fsHintSeen") === "1"; } catch {}
+      if(!seen){
+        setTimeout(()=>document.body.classList.add("show-fs-hint"), 600);
+        setTimeout(hideFsHint, 6000);
+      }
+    }
 
     function openModal(id){
       const m = document.getElementById(id);
