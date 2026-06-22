@@ -50,7 +50,8 @@
     box-shadow:0 10px 40px -12px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.06);
     background:#fff;
   }
-  canvas{ display:block; max-width:100%; max-height:100%; }
+  .page img{ display:block; max-width:100%; max-height:100%; }
+  .page picture{ display:block; line-height:0; }
 
   /* loading / empty states */
   .msg{
@@ -168,7 +169,13 @@
   </header>
 
   <main class="stage">
-    <div class="page" id="page"><canvas id="canvas"></canvas></div>
+    <div class="page" id="page">
+      <picture>
+        <source id="srcAvif" type="image/avif">
+        <source id="srcWebp" type="image/webp">
+        <img id="pageImg" alt="">
+      </picture>
+    </div>
     <div class="msg" id="msg"><div class="spinner" aria-label="Loading" role="status"></div></div>
     <div class="tapzone prev" id="zonePrev" aria-hidden="true"></div>
     <div class="tapzone next" id="zoneNext" aria-hidden="true"></div>
@@ -223,72 +230,66 @@
     </div>
   </div>
 
-  <!-- PDF rendering engine (loaded free from a public CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
-    /* ════════════════════════════════════════════════════════
-       Put your portfolio file in this folder named exactly
-       portfolio.pdf  — or change the name on the next line.
-       ════════════════════════════════════════════════════════ */
+    const TOTAL = 28;
     const isMobile = window.matchMedia('(max-width: 600px)').matches;
-    const PDF_URL = isMobile ? "portfolio-mobile.pdf" : "portfolio.pdf";
+    const VARIANT = isMobile ? 'mobile' : 'desktop';
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const pageEl  = document.getElementById("page");
+    const srcAvif = document.getElementById("srcAvif");
+    const srcWebp = document.getElementById("srcWebp");
+    const pageImg = document.getElementById("pageImg");
+    const msg     = document.getElementById("msg");
+    const folio   = document.getElementById("folio");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
 
-    const canvas = document.getElementById("canvas");
-    const ctx    = canvas.getContext("2d");
-    const stage  = document.querySelector(".stage");
-    const pageEl = document.getElementById("page");
-    const msg    = document.getElementById("msg");
-    const folio  = document.getElementById("folio");
-    const prevBtn= document.getElementById("prev");
-    const nextBtn= document.getElementById("next");
+    let current = 1;
 
-    let pdfDoc = null, current = 1, total = 0, rendering = false, queued = null;
+    function paths(n){
+      const nn = String(n).padStart(2, '0');
+      return {
+        avif: `images/page-${nn}-${VARIANT}.avif`,
+        webp: `images/page-${nn}-${VARIANT}.webp`,
+      };
+    }
 
-    pdfjsLib.getDocument({ url: PDF_URL, disableAutoFetch: true, disableStream: false }).promise
-      .then(doc => { pdfDoc = doc; total = doc.numPages; render(1, true); })
-      .catch(() => {
-        msg.classList.remove("hidden");
-        msg.innerHTML = "<p>Add your portfolio file to this folder, named <b>portfolio.pdf</b>, and it will appear here as a booklet.</p>";
-      });
-
-    async function render(n){
-      if(!pdfDoc) return;
-      if(rendering){ queued = n; return; }
-      rendering = true;
+    function render(n){
+      if(n < 1 || n > TOTAL) return;
+      const p = paths(n);
+      msg.classList.remove("hidden");
+      msg.innerHTML = '<div class="spinner" aria-label="Loading" role="status"></div>';
       pageEl.style.opacity = 0;
 
-      const page = await pdfDoc.getPage(n);
-      const dpr  = window.devicePixelRatio || 1;
-      const base = page.getViewport({ scale: 1 });
-      const maxW = stage.clientWidth  - 4;
-      const maxH = stage.clientHeight - 4;
-      const fit  = Math.min(maxW / base.width, maxH / base.height);
-      const vp   = page.getViewport({ scale: fit * dpr });
-
-      canvas.width  = Math.floor(vp.width);
-      canvas.height = Math.floor(vp.height);
-      canvas.style.width  = Math.floor(vp.width  / dpr) + "px";
-      canvas.style.height = Math.floor(vp.height / dpr) + "px";
-
-      await page.render({ canvasContext: ctx, viewport: vp }).promise;
-      msg.classList.add("hidden");
+      srcAvif.srcset = p.avif;
+      srcWebp.srcset = p.webp;
+      pageImg.src    = p.webp;
 
       current = n;
-      folio.textContent = current + " / " + total;
+      folio.textContent = current + " / " + TOTAL;
       prevBtn.disabled = current <= 1;
-      nextBtn.disabled = current >= total;
-      pageEl.style.opacity = 1;
-
-      rendering = false;
-      if(queued !== null){ const q = queued; queued = null; render(q); }
+      nextBtn.disabled = current >= TOTAL;
     }
+
+    pageImg.addEventListener("load", ()=>{
+      msg.classList.add("hidden");
+      pageEl.style.opacity = 1;
+      if(current < TOTAL){
+        const next = paths(current + 1);
+        new Image().src = next.webp;
+        new Image().src = next.avif;
+      }
+    });
+    pageImg.addEventListener("error", ()=>{
+      msg.classList.remove("hidden");
+      msg.innerHTML = "<p>Couldn't load page " + current + ".</p>";
+    });
+
+    render(1);
 
     function go(d){
       const t = current + d;
-      if(t >= 1 && t <= total) render(t);
+      if(t >= 1 && t <= TOTAL) render(t);
     }
 
     nextBtn.addEventListener("click", ()=>go(1));
@@ -309,12 +310,8 @@
       tx=null;
     }, {passive:true});
 
-    let rz; window.addEventListener("resize", ()=>{
-      clearTimeout(rz); rz=setTimeout(()=>{ if(pdfDoc) render(current); }, 160);
-    });
-
-    document.getElementById("nameReset").addEventListener("click", ()=>{ if(pdfDoc) render(1); });
-    document.getElementById("portfolioLink").addEventListener("click", e=>{ e.preventDefault(); if(pdfDoc) render(1); });
+    document.getElementById("nameReset").addEventListener("click", ()=>render(1));
+    document.getElementById("portfolioLink").addEventListener("click", e=>{ e.preventDefault(); render(1); });
 
     const fsBtn = document.getElementById("fsBtn");
     const fsIcon = document.getElementById("fsIcon");
@@ -328,7 +325,6 @@
       } else {
         const on = document.body.classList.toggle("fs-fallback");
         fsIcon.innerHTML = on ? FS_COLLAPSE : FS_EXPAND;
-        if(pdfDoc) setTimeout(()=>render(current), 50);
       }
     });
     document.addEventListener("fullscreenchange", ()=>{
