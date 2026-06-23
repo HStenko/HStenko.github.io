@@ -37,10 +37,20 @@
   }
   :fullscreen .controls, :-webkit-full-screen .controls{
     position:fixed; left:0; right:0; bottom:0;
-    background:rgba(255,255,255,.88);
-    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
-    padding:10px 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+    background:linear-gradient(to top, rgba(0,0,0,.38), rgba(0,0,0,0));
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+    padding:70px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    pointer-events:none;
     z-index:50;
+  }
+  :fullscreen .controls > *, :-webkit-full-screen .controls > *{ pointer-events:auto; }
+  :fullscreen .nav, :-webkit-full-screen .nav{ color:#fff; }
+  :fullscreen .nav:hover, :-webkit-full-screen .nav:hover{ background:rgba(255,255,255,.16); }
+  :fullscreen .nav svg, :-webkit-full-screen .nav svg{
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.55));
+  }
+  :fullscreen .folio, :-webkit-full-screen .folio{
+    color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.55);
   }
 
   /* ── the page stage ────────────────────────────────────── */
