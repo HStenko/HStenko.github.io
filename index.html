@@ -82,8 +82,8 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){ .spinner{ animation:none; } }
 
-  /* invisible tap zones — left/right thirds; centre third free for pinch + double-tap zoom */
-  .tapzone{ position:absolute; top:0; bottom:0; width:33.333%; cursor:pointer; z-index:5; }
+  /* invisible tap zones — thin edge strips; centre stays free for double-tap + pinch zoom */
+  .tapzone{ position:absolute; top:0; bottom:0; width:15%; max-width:60px; cursor:pointer; z-index:5; }
   .tapzone.prev{ left:0; }
   .tapzone.next{ right:0; }
 
