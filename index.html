@@ -82,10 +82,10 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){ .spinner{ animation:none; } }
 
-  /* invisible tap zones */
-  .tapzone{ position:absolute; top:0; bottom:0; width:35%; cursor:pointer; z-index:5; }
+  /* invisible tap zones — left/right thirds; centre third free for pinch + double-tap zoom */
+  .tapzone{ position:absolute; top:0; bottom:0; width:33.333%; cursor:pointer; z-index:5; }
   .tapzone.prev{ left:0; }
-  .tapzone.next{ right:0; width:65%; }
+  .tapzone.next{ right:0; }
 
   /* ── controls ──────────────────────────────────────────── */
   .controls{
@@ -343,21 +343,30 @@
 
     nextBtn.addEventListener("click", ()=>go(1));
     prevBtn.addEventListener("click", ()=>go(-1));
-    document.getElementById("zoneNext").addEventListener("click", ()=>go(1));
-    document.getElementById("zonePrev").addEventListener("click", ()=>go(-1));
     document.addEventListener("keydown", e=>{
       if(e.key==="ArrowRight"||e.key==="PageDown") go(1);
       if(e.key==="ArrowLeft" ||e.key==="PageUp")   go(-1);
     });
 
-    let tx=null;
-    document.addEventListener("touchstart", e=>{ tx=e.changedTouches[0].clientX; }, {passive:true});
-    document.addEventListener("touchend", e=>{
-      if(tx===null) return;
-      const dx=e.changedTouches[0].clientX - tx;
-      if(Math.abs(dx)>45) go(dx<0?1:-1);
-      tx=null;
+    // Tap-edge navigation, but never while pinching or zoomed —
+    // let the browser's native pinch-zoom / double-tap-zoom take over.
+    let multiTouchActive = false;
+    document.addEventListener("touchstart", e=>{
+      if(e.touches.length > 1) multiTouchActive = true;
     }, {passive:true});
+    document.addEventListener("touchend", e=>{
+      if(e.touches.length === 0) setTimeout(()=>{ multiTouchActive = false; }, 80);
+    }, {passive:true});
+    function isZoomed(){
+      const v = window.visualViewport;
+      return !!(v && v.scale > 1.01);
+    }
+    function zoneTap(d){
+      if(multiTouchActive || isZoomed()) return;
+      go(d);
+    }
+    document.getElementById("zoneNext").addEventListener("click", ()=>zoneTap(1));
+    document.getElementById("zonePrev").addEventListener("click", ()=>zoneTap(-1));
 
     document.getElementById("nameReset").addEventListener("click", ()=>render(1));
     document.getElementById("portfolioLink").addEventListener("click", e=>{ e.preventDefault(); render(1); });
